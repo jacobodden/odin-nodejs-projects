@@ -1,32 +1,22 @@
-const http = require('http')
-const url = require('url')
-const fs = require('fs')
+const express = require('express')
+const app = express()
 
-const routes = new Map([
-  ['/', '/index.html'],
-  ['/about', '/about.html'],
-  ['/contact-me', '/contact-me.html'],
-])
+app.get('/', (req, res) => {
+  res.sendFile(`${__dirname}/index.html`)
+})
 
-http.createServer((req, res) => {
-  const q = url.parse(req.url, true)
-  const page = `${__dirname}/${routes.get(q.path) || '404.html'}`
-  let isErrorPage = false
+app.get('/about', (req, res) => {
+  res.sendFile(`${__dirname}/about.html`)
+})
 
-  fs.readFile(page, (err, data) => {
-    if(err) {
-      res.writeHead(404, {'Content-Type': 'text/html'})
-      return res.end('404 not fonud')
-    }
+app.get('/contact-me', (req, res) => {
+  res.sendFile(`${__dirname}/contact-me.html`)
+})
 
-    if (isErrorPage) {
-      res.writeHead(404, { 'Content-Type': 'text/html' })
-      res.write(data)
-      return res.end('404 not fonud')
-    } else {
-      res.writeHead(200, { 'Content-Type': 'text/html' })
-      res.write(data)
-      return res.end()
-    }
-  })
-}).listen(8080)
+app.use((req, res, next) => {
+  res.status(404).sendFile(`${__dirname}/404.html`)
+})
+
+app.listen(8080, () => {
+  console.log('listening...')
+})
